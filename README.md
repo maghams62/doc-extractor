@@ -11,6 +11,7 @@ Upload a passport + G-28, extract structured fields with evidence, autofill the 
 - OpenAI API key if you enable translation/LLM validation/LLM extraction
 
 ### Environment
+Create a `.env` file in the repo root (same level as this README).
 ```bash
 # .env (repo root)
 # Enable optional LLM features (translation/LLM validation/LLM extraction).
