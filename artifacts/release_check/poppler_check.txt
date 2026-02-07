@@ -1,0 +1,2 @@
+pdfinfo not found
+zsh:1: command not found: pdfinfo

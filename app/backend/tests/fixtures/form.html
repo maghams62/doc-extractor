@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local Form Fixture</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 24px; }
+      form { display: grid; gap: 12px; max-width: 720px; }
+      label { font-size: 14px; font-weight: 600; }
+      input, select, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+      .row { display: grid; gap: 6px; }
+    </style>
+  </head>
+  <body>
+    <h1>G-28 / Passport Form (Fixture)</h1>
+    <form>
+      <div class="row">
+        <label for="g28_family">2.a. Family Name (Last Name)</label>
+        <input id="g28_family" name="g28_family" type="text" />
+      </div>
+      <div class="row">
+        <label for="g28_given">2.b. Given Name (First Name)</label>
+        <input id="g28_given" name="g28_given" type="text" />
+      </div>
+      <div class="row">
+        <label for="g28_middle">2.c. Middle Name</label>
+        <input id="g28_middle" name="g28_middle" type="text" />
+      </div>
+      <div class="row">
+        <label for="law_firm">1.d. Name of Law Firm or Organization (if applicable)</label>
+        <input id="law_firm" name="law_firm" type="text" />
+      </div>
+      <div class="row">
+        <label for="street">3.a. Street Number and Name</label>
+        <input id="street" name="street" type="text" />
+      </div>
+      <div class="row">
+        <label for="apt">Apt.</label>
+        <input id="apt" name="apt" type="text" />
+      </div>
+      <div class="row">
+        <label for="ste">Ste.</label>
+        <input id="ste" name="ste" type="text" />
+      </div>
+      <div class="row">
+        <label for="flr">Flr.</label>
+        <input id="flr" name="flr" type="text" />
+      </div>
+      <div class="row">
+        <label for="city">3.c. City</label>
+        <input id="city" name="city" type="text" />
+      </div>
+      <div class="row">
+        <label for="state">3.d. State</label>
+        <input id="state" name="state" type="text" />
+      </div>
+      <div class="row">
+        <label for="zip">3.e. ZIP Code</label>
+        <input id="zip" name="zip" type="text" />
+      </div>
+      <div class="row">
+        <label for="country">3.f. Country</label>
+        <input id="country" name="country" type="text" />
+      </div>
+      <div class="row">
+        <label for="phone_day">4. Daytime Telephone Number</label>
+        <input id="phone_day" name="phone_day" type="text" />
+      </div>
+      <div class="row">
+        <label for="phone_mobile">5. Mobile Telephone Number (if any)</label>
+        <input id="phone_mobile" name="phone_mobile" type="text" />
+      </div>
+      <div class="row">
+        <label for="email">6. Email Address (if any)</label>
+        <input id="email" name="email" type="email" />
+      </div>
+      <div class="row">
+        <label for="licensing-authority">Licensing Authority</label>
+        <input id="licensing-authority" name="licensing-authority" type="text" />
+      </div>
+      <div class="row">
+        <label for="bar-number">1.b. Bar Number (if applicable)</label>
+        <input id="bar-number" name="bar-number" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_family">1.a. Last Name</label>
+        <input id="passport_family" name="passport_family" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_given">1.b. First Name(s)</label>
+        <input id="passport_given" name="passport_given" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_sex">Sex</label>
+        <input id="passport_sex" name="passport_sex" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_dob">5.a. Date of Birth</label>
+        <input id="passport_dob" name="passport_dob" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_pob">5.b. Place of Birth</label>
+        <input id="passport_pob" name="passport_pob" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_number">2. Passport Number</label>
+        <input id="passport_number" name="passport_number" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_country">3. Country of Issue</label>
+        <input id="passport_country" name="passport_country" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_nationality">4. Nationality</label>
+        <input id="passport_nationality" name="passport_nationality" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_issue_date">7.a. Date of Issue</label>
+        <input id="passport_issue_date" name="passport_issue_date" type="text" />
+      </div>
+      <div class="row">
+        <label for="passport_expiry_date">7.b. Date of Expiration</label>
+        <input id="passport_expiry_date" name="passport_expiry_date" type="text" />
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

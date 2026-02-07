@@ -1,0 +1,149 @@
+✔︎ JSON API cask.jws.json
+✔︎ JSON API formula.jws.json
+==> Fetching downloads for: poppler
+✔︎ Bottle Manifest poppler (26.02.0)
+✔︎ Bottle Manifest libpng (1.6.54)
+✔︎ Bottle libpng (1.6.54)
+✔︎ Bottle Manifest gettext (1.0)
+✔︎ Bottle Manifest glib (2.86.3)
+✔︎ Bottle Manifest pcre2 (10.47_1)
+✔︎ Bottle Manifest xorgproto (2025.1)
+✔︎ Bottle xorgproto (2025.1)
+✔︎ Bottle Manifest libxext (1.3.7)
+✔︎ Bottle Manifest gmp (6.3.0)
+✔︎ Bottle Manifest libidn2 (2.3.8)
+✔︎ Bottle Manifest libtasn1 (4.21.0)
+✔︎ Bottle libxext (1.3.7)
+✔︎ Bottle Manifest nettle (3.10.2)
+✔︎ Bottle libidn2 (2.3.8)
+✔︎ Bottle Manifest p11-kit (0.26.1)
+✔︎ Bottle Manifest unbound (1.24.2)
+✔︎ Bottle Manifest gnutls (3.8.11)
+✔︎ Bottle gmp (6.3.0)
+✔︎ Bottle libtasn1 (4.21.0)
+✔︎ Bottle pcre2 (10.47_1)
+✔︎ Bottle Manifest libgpg-error (1.58)
+✔︎ Bottle p11-kit (0.26.1)
+✔︎ Bottle nettle (3.10.2)
+✔︎ Bottle Manifest libassuan (3.0.2)
+✔︎ Bottle gettext (1.0)
+✔︎ Bottle glib (2.86.3)
+✔︎ Bottle unbound (1.24.2)
+✔︎ Bottle Manifest libgcrypt (1.12.0)
+✔︎ Bottle libgpg-error (1.58)
+✔︎ Bottle gnutls (3.8.11)
+✔︎ Bottle libassuan (3.0.2)
+✔︎ Bottle Manifest libksba (1.6.7)
+✔︎ Bottle Manifest libusb (1.0.29)
+✔︎ Bottle Manifest npth (1.8)
+✔︎ Bottle libksba (1.6.7)
+✔︎ Bottle Manifest pinentry (1.3.2)
+✔︎ Bottle Manifest readline (8.3.3)
+✔︎ Bottle libusb (1.0.29)
+✔︎ Bottle libgcrypt (1.12.0)
+✔︎ Bottle npth (1.8)
+✔︎ Bottle pinentry (1.3.2)
+✔︎ Bottle Manifest gnupg (2.4.9)
+✔︎ Bottle Manifest gpgme (2.0.1)
+✔︎ Bottle readline (8.3.3)
+✔︎ Bottle Manifest jpeg-turbo (3.1.3)
+✔︎ Bottle Manifest gpgmepp (2.0.0)
+✔︎ Bottle Manifest little-cms2 (2.18)
+✔︎ Bottle Manifest zstd (1.5.7_1)
+✔︎ Bottle Manifest nspr (4.38.2)
+✔︎ Bottle gnupg (2.4.9)
+✔︎ Bottle gpgmepp (2.0.0)
+✔︎ Bottle gpgme (2.0.1)
+✔︎ Bottle jpeg-turbo (3.1.3)
+✔︎ Bottle zstd (1.5.7_1)
+✔︎ Bottle little-cms2 (2.18)
+✔︎ Bottle Manifest nss (3.120)
+✔︎ Bottle nspr (4.38.2)
+✔︎ Bottle poppler (26.02.0)
+✔︎ Bottle nss (3.120)
+==> Installing dependencies for poppler: libpng, gettext, glib, xorgproto, libxext, gmp, libidn2, libtasn1, nettle, p11-kit, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth, pinentry, readline, gnupg, gpgme, gpgmepp, jpeg-turbo, little-cms2, nspr and nss
+==> Installing poppler dependency: libpng
+==> Pouring libpng--1.6.54.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libpng/1.6.54: 28 files, 1.4MB
+==> Installing poppler dependency: gettext
+==> Pouring gettext--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/gettext/1.0: 2,499 files, 35.5MB
+==> Installing poppler dependency: glib
+==> Pouring glib--2.86.3.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/glib/2.86.3: 504 files, 38.5MB
+==> Installing poppler dependency: xorgproto
+==> Pouring xorgproto--2025.1.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/xorgproto/2025.1: 268 files, 4.1MB
+==> Installing poppler dependency: libxext
+==> Pouring libxext--1.3.7.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libxext/1.3.7: 88 files, 473.6KB
+==> Installing poppler dependency: gmp
+==> Pouring gmp--6.3.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/gmp/6.3.0: 22 files, 3.4MB
+==> Installing poppler dependency: libidn2
+==> Pouring libidn2--2.3.8.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libidn2/2.3.8: 80 files, 962KB
+==> Installing poppler dependency: libtasn1
+==> Pouring libtasn1--4.21.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libtasn1/4.21.0: 64 files, 726.3KB
+==> Installing poppler dependency: nettle
+==> Pouring nettle--3.10.2.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/nettle/3.10.2: 96 files, 2.9MB
+==> Installing poppler dependency: p11-kit
+==> Pouring p11-kit--0.26.1.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/p11-kit/0.26.1: 33 files, 5.0MB
+==> Installing poppler dependency: unbound
+==> Pouring unbound--1.24.2.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/unbound/1.24.2: 59 files, 6.5MB
+==> Installing poppler dependency: gnutls
+==> Pouring gnutls--3.8.11.arm64_sonoma.bottle.1.tar.gz
+🍺  /opt/homebrew/Cellar/gnutls/3.8.11: 1,303 files, 11.7MB
+==> Installing poppler dependency: libgpg-error
+==> Pouring libgpg-error--1.58.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libgpg-error/1.58: 50 files, 1.9MB
+==> Installing poppler dependency: libassuan
+==> Pouring libassuan--3.0.2.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libassuan/3.0.2: 18 files, 580.5KB
+==> Installing poppler dependency: libgcrypt
+==> Pouring libgcrypt--1.12.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libgcrypt/1.12.0: 24 files, 4MB
+==> Installing poppler dependency: libksba
+==> Pouring libksba--1.6.7.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libksba/1.6.7: 19 files, 542.5KB
+==> Installing poppler dependency: libusb
+==> Pouring libusb--1.0.29.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libusb/1.0.29: 23 files, 644.6KB
+==> Installing poppler dependency: npth
+==> Pouring npth--1.8.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/npth/1.8: 13 files, 172.8KB
+==> Installing poppler dependency: pinentry
+==> Pouring pinentry--1.3.2.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/pinentry/1.3.2: 13 files, 473.8KB
+==> Installing poppler dependency: readline
+==> Pouring readline--8.3.3.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/readline/8.3.3: 56 files, 2.7MB
+==> Installing poppler dependency: gnupg
+==> Pouring gnupg--2.4.9.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/gnupg/2.4.9: 144 files, 15.6MB
+==> Installing poppler dependency: gpgme
+==> Pouring gpgme--2.0.1.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/gpgme/2.0.1: 29 files, 2.8MB
+==> Installing poppler dependency: gpgmepp
+==> Pouring gpgmepp--2.0.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/gpgmepp/2.0.0: 70 files, 840.1KB
+==> Installing poppler dependency: jpeg-turbo
+==> Pouring jpeg-turbo--3.1.3.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/jpeg-turbo/3.1.3: 47 files, 3.7MB
+==> Installing poppler dependency: little-cms2
+==> Pouring little-cms2--2.18.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/little-cms2/2.18: 23 files, 1.5MB
+==> Installing poppler dependency: nspr
+==> Pouring nspr--4.38.2.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/nspr/4.38.2: 79 files, 1.3MB
+==> Installing poppler dependency: nss
+==> Pouring nss--3.120.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/nss/3.120: 217 files, 20.7MB
+==> Installing poppler
+==> Pouring poppler--26.02.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/poppler/26.02.0: 444 files, 32.6MB
+==> Running `brew cleanup poppler`...
