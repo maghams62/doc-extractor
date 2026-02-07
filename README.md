@@ -2,6 +2,7 @@
 Upload a passport + G-28, extract structured fields with evidence, autofill the target form, and validate.
 
 ## Quickstart
+Create a `.env` file in the repo root (same level as this README).
 
 ### Prereqs
 - Python 3.11 (repo venv is 3.11) + pip
@@ -11,7 +12,6 @@ Upload a passport + G-28, extract structured fields with evidence, autofill the 
 - OpenAI API key if you enable translation/LLM validation/LLM extraction
 
 ### Environment
-Create a `.env` file in the repo root (same level as this README).
 ```bash
 # .env (repo root)
 # Enable optional LLM features (translation/LLM validation/LLM extraction).
