@@ -55,13 +55,28 @@ def _llm_enabled() -> bool:
     return os.getenv("ENABLE_LLM", "").strip().lower() in {"1", "true", "yes"}
 
 
-def extract_ocr_text(path: Path, max_chars: Optional[int] = None) -> str:
+def _resolve_ocr_langs(path: Path) -> Optional[str]:
+    override = os.getenv("OCR_LANGS")
+    if override:
+        return override
+    name = path.name.lower()
+    if any(token in name for token in ("_zh", "-zh", "chinese", "_cn", "-cn")):
+        return os.getenv("OCR_LANGS_ZH", "chi_sim+eng")
+    if any(token in name for token in ("_es", "-es", "spanish")):
+        return os.getenv("OCR_LANGS_ES", "spa+eng")
+    return None
+
+
+def extract_ocr_text(
+    path: Path, max_chars: Optional[int] = None, ocr_langs: Optional[str] = None
+) -> str:
     pages = load_document(path)
     chunks: list[str] = []
     total = 0
+    resolved_langs = ocr_langs or _resolve_ocr_langs(path)
     for page in pages:
         pre = preprocess_image(page)
-        ocr = ocr_image(pre)
+        ocr = ocr_image(pre, lang=resolved_langs)
         if ocr.text:
             chunks.append(ocr.text)
             total += len(ocr.text)

@@ -64,6 +64,7 @@ export default function App() {
   const [textActive, setTextActive] = useState("raw");
   const [activeStatus, setActiveStatus] = useState("idle");
   const [activeError, setActiveError] = useState(null);
+  const [ocrLangOverride, setOcrLangOverride] = useState("auto");
   const [hasTranslation, setHasTranslation] = useState(false);
   const [translationWarning, setTranslationWarning] = useState(null);
   const [pipeline, setPipeline] = useState({
@@ -132,6 +133,7 @@ export default function App() {
       setTextActive("raw");
       setActiveStatus("idle");
       setActiveError(null);
+      setOcrLangOverride("auto");
       setHasTranslation(false);
       setTranslationWarning(null);
       return;
@@ -157,6 +159,9 @@ export default function App() {
         formData.append("document", translationFile);
         if (translationDocType) {
           formData.append("doc_type", translationDocType);
+        }
+        if (ocrLangOverride && ocrLangOverride !== "auto") {
+          formData.append("ocr_langs", ocrLangOverride);
         }
         const response = await fetch(`${API_BASE}/detect_language`, {
           method: "POST",
@@ -185,7 +190,7 @@ export default function App() {
       cancelled = true;
       controller.abort();
     };
-  }, [translationFile, translationDocType]);
+  }, [translationFile, translationDocType, ocrLangOverride]);
 
   const autofillSummary =
     autofillStatus && typeof autofillStatus === "object" ? autofillStatus : null;
@@ -1187,6 +1192,9 @@ export default function App() {
       if (languageInfo?.doc_type || translationDocType) {
         formData.append("doc_type", languageInfo?.doc_type || translationDocType);
       }
+      if (ocrLangOverride && ocrLangOverride !== "auto") {
+        formData.append("ocr_langs", ocrLangOverride);
+      }
       const response = await fetch(`${API_BASE}/translate`, {
         method: "POST",
         body: formData,
@@ -1873,6 +1881,22 @@ export default function App() {
               )
             </p>
           )}
+        </div>
+        <div className="translation-row">
+          <p className="status-label">OCR language</p>
+          <label className="toggle">
+            <span>Override</span>
+            <select
+              value={ocrLangOverride}
+              onChange={(event) => setOcrLangOverride(event.target.value)}
+              disabled={languageStatus === "detecting" || translationStatus === "running"}
+            >
+              <option value="auto">Auto (detect)</option>
+              <option value="spa+eng">Spanish (spa+eng)</option>
+              <option value="chi_sim+eng">Chinese (chi_sim+eng)</option>
+            </select>
+          </label>
+          <p className="note">Forces OCR language during detection and translation.</p>
         </div>
         {languageInfo && languageStatus === "success" && (
           <div className="translation-row">

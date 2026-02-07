@@ -73,13 +73,13 @@ flowchart TD
   B -- Yes --> C[Translate to English]
   B -- No --> D[Extract fields]
   C --> D[Extract fields]
-  D --> E[Review gate (rules + optional LLM)]
+  D --> E["Review gate (rules + optional LLM)"]
   E --> F{Blocking issues?}
   F -- Yes --> G[Human corrections / confirm]
   F -- No --> H[Approve canonical fields]
   G --> H[Approve canonical fields]
   H --> I[Autofill form]
-  I --> J[Validation report (heuristic + LLM)]
+  I --> J["Validation report (heuristic + LLM)"]
   J --> K[Final confirmation + export]
 ```
 

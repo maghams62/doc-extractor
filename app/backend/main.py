@@ -248,15 +248,17 @@ def _find_input_document(run_dir: Path) -> Optional[Path]:
     return sorted(files)[0]
 
 
-def _load_or_create_ocr_text(run_dir: Path, doc_path: Optional[Path]) -> str:
+def _load_or_create_ocr_text(
+    run_dir: Path, doc_path: Optional[Path], ocr_langs: Optional[str] = None
+) -> str:
     ocr_path = run_dir / "ocr_text.txt"
-    if ocr_path.exists():
+    if ocr_path.exists() and not ocr_langs:
         return ocr_path.read_text()
     if not doc_path:
         doc_path = _find_input_document(run_dir)
     if not doc_path:
         return ""
-    text = extract_ocr_text(doc_path)
+    text = extract_ocr_text(doc_path, ocr_langs=ocr_langs)
     _write_text_artifact(run_dir, "ocr_text.txt", text)
     return text
 
@@ -1068,6 +1070,7 @@ async def detect_language_endpoint(
     document: UploadFile = File(None),
     run_id: Optional[str] = Form(None),
     doc_type: Optional[str] = Form(None),
+    ocr_langs: Optional[str] = Form(None),
 ):
     run_dir = RUNS_DIR / run_id if run_id else _create_run_dir()
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -1081,7 +1084,7 @@ async def detect_language_endpoint(
         doc_path = _find_input_document(run_dir)
 
     try:
-        ocr_text = _load_or_create_ocr_text(run_dir, doc_path)
+        ocr_text = _load_or_create_ocr_text(run_dir, doc_path, ocr_langs=ocr_langs)
     except Exception as exc:  # noqa: BLE001
         _log_run(run_dir, f"Language detection OCR failed: {exc}")
         return JSONResponse({"run_id": run_dir.name, "error": f"OCR failed: {exc}"}, status_code=400)
@@ -1132,6 +1135,7 @@ async def translate(
     document: UploadFile = File(None),
     run_id: Optional[str] = Form(None),
     doc_type: Optional[str] = Form(None),
+    ocr_langs: Optional[str] = Form(None),
 ):
     run_dir = RUNS_DIR / run_id if run_id else _create_run_dir()
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -1145,7 +1149,7 @@ async def translate(
         doc_path = _find_input_document(run_dir)
 
     try:
-        ocr_text = _load_or_create_ocr_text(run_dir, doc_path)
+        ocr_text = _load_or_create_ocr_text(run_dir, doc_path, ocr_langs=ocr_langs)
     except Exception as exc:  # noqa: BLE001
         _log_run(run_dir, f"Translation OCR failed: {exc}")
         return JSONResponse({"run_id": run_dir.name, "error": f"OCR failed: {exc}"}, status_code=400)

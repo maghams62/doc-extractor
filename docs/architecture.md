@@ -8,10 +8,10 @@ flowchart TD
   D -- Yes --> E[LLM translation]
   D -- No --> F[Extraction]
   E --> F[Extraction]
-  F --> G[Review gate (rules + optional LLM)]
+  F --> G["Review gate (rules + optional LLM)"]
   G --> H[Canonical snapshot approval]
   H --> I[Autofill]
-  I --> J[Validation report (heuristic + LLM)]
+  I --> J["Validation report (heuristic + LLM)"]
   J --> K[Output artifacts]
 ```
 

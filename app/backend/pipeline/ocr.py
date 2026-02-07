@@ -28,9 +28,16 @@ class OCRResult:
     words: List[OCRWord]
 
 
-def ocr_image(image: Image.Image) -> OCRResult:
+def ocr_image(image: Image.Image, lang: str | None = None) -> OCRResult:
     """Run OCR on a single image and return text + word boxes."""
-    data = pytesseract.image_to_data(image, output_type=Output.DICT)
+    try:
+        data = pytesseract.image_to_data(image, output_type=Output.DICT, lang=lang)
+    except pytesseract.TesseractError:
+        if lang:
+            LOGGER.warning("OCR language %s failed; retrying default OCR.", lang)
+            data = pytesseract.image_to_data(image, output_type=Output.DICT)
+        else:
+            raise
     words: List[OCRWord] = []
     for i, text in enumerate(data.get("text", [])):
         if not text or not text.strip():
@@ -50,7 +57,13 @@ def ocr_image(image: Image.Image) -> OCRResult:
                 height=int(data["height"][i]),
             )
         )
-    text = pytesseract.image_to_string(image)
+    try:
+        text = pytesseract.image_to_string(image, lang=lang)
+    except pytesseract.TesseractError:
+        if lang:
+            text = pytesseract.image_to_string(image)
+        else:
+            raise
     LOGGER.debug("OCR extracted %d words", len(words))
     return OCRResult(text=text, words=words)
 
