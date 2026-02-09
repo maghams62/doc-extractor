@@ -355,6 +355,11 @@ def _should_invoke_llm(
     if scope == "required_only":
         return bool(spec.required and not value_missing)
 
+    # Some OCR-prone fields are worth validating even when deterministic rules pass.
+    high_risk_fields = {"passport.place_of_birth"}
+    if spec.key in high_risk_fields and not value_missing:
+        return True
+
     # Smart default: skip clear non-issues, focus on autofilled + risky fields.
     if bool(getattr(spec, "human_required", False)):
         return False

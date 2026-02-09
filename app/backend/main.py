@@ -5,6 +5,7 @@ import logging
 import re
 import shutil
 import uuid
+from difflib import SequenceMatcher
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -26,9 +27,10 @@ from .field_registry import (
 from .pipeline.confidence import add_suggestion, apply_fields, set_field
 from .pipeline.g28 import extract_g28_fields
 from .pipeline.ingest import load_document, preprocess_image
-from .pipeline.ocr import ocr_image, ocr_mrz_text
+from .pipeline.ocr import OCRResult, ocr_image, ocr_mrz_text
 from .pipeline.passport import extract_mrz_from_text, extract_passport_fields, extract_passport_heuristics
 from .pipeline.llm_extract import llm_recover_fields
+from .pipeline.llm_correct import llm_correct_fields
 from .pipeline.label_noise import looks_like_label_value
 from .pipeline.post_autofill import validate_post_autofill
 from .pipeline.coverage_report import build_e2e_coverage_report
@@ -45,7 +47,7 @@ from .pipeline.text_artifact import (
 )
 from .pipeline.validate import validate_and_annotate
 from .pipeline.verify import llm_verify
-from .pipeline.normalize import normalize_full_name
+from .pipeline.normalize import normalize_country, normalize_date, normalize_full_name
 from .pipeline.translate import extract_ocr_text, translate_text, translation_engine_name
 from .schemas import ExtractionResult, ResolvedField, WarningItem, empty_result
 
@@ -395,15 +397,32 @@ def _extract_passport(
 
     for page in pages:
         pre = preprocess_image(page)
-        ocr = ocr_image(pre)
-        ocr_results.append(ocr)
-        combined_text.append(ocr.text)
-        fields = extract_passport_fields(ocr)
+        ocr_pre = ocr_image(pre)
+        ocr_results.append(ocr_pre)
+        combined_text.append(ocr_pre.text)
+        merged_text = ocr_pre.text
+        try:
+            ocr_raw = ocr_image(page)
+        except Exception:  # noqa: BLE001
+            ocr_raw = None
+        if ocr_raw and ocr_raw.text and ocr_raw.text.strip():
+            if ocr_raw.text not in merged_text:
+                merged_text = f"{merged_text}\n{ocr_raw.text}" if merged_text else ocr_raw.text
+                combined_text.append(ocr_raw.text)
+            ocr_results.append(ocr_raw)
+        fields = extract_passport_fields(OCRResult(text=merged_text, words=ocr_pre.words))
         mrz_region = page.crop((0, int(page.height * 0.6), page.width, page.height))
-        mrz_text = ocr_mrz_text(mrz_region)
-        mrz_result = extract_mrz_from_text(mrz_text)
-        if mrz_result:
-            fields = {**mrz_result.fields, "_mrz_raw": "\n".join(mrz_result.raw_lines)}
+        mrz_texts = [ocr_mrz_text(mrz_region)]
+        try:
+            mrz_pre = preprocess_image(mrz_region)
+            mrz_texts.append(ocr_mrz_text(mrz_pre))
+        except Exception:  # noqa: BLE001
+            mrz_pre = None
+        for mrz_text in mrz_texts:
+            mrz_result = extract_mrz_from_text(mrz_text)
+            if mrz_result:
+                fields = {**mrz_result.fields, "_mrz_raw": "\n".join(mrz_result.raw_lines)}
+                break
         if fields.get("_mrz_raw"):
             mrz_used = True
             mrz_raw = fields.get("_mrz_raw")
@@ -457,6 +476,16 @@ def _extract_passport(
             path = f"passport.{key}"
             existing = result.meta.sources.get(path)
             if existing and value and str(value).strip() != str(getattr(result.passport, key, "")).strip():
+                evidence_line = heuristics.evidence.get(key, text[:120])
+                if key == "date_of_birth" and existing == "MRZ" and _dob_label_present(evidence_line):
+                    set_field(result, path, value, "OCR", None, evidence_line)
+                    _add_warning(
+                        result,
+                        "mrz_overridden",
+                        f"OCR DOB label matched; overriding MRZ value for {path}.",
+                        field=path,
+                    )
+                    continue
                 if key == "passport_number" and not re.search(r"\d", str(value)):
                     _add_warning(
                         result,
@@ -490,7 +519,7 @@ def _extract_passport(
                     "OCR fallback value",
                     "OCR",
                     None,
-                    heuristics.evidence.get(key, text[:120]),
+                    evidence_line,
                     True,
                 )
             if not existing and value:
@@ -863,6 +892,191 @@ def _apply_llm_recovery_suggestions(
         )
 
 
+def _similarity_score(left: str, right: str) -> float:
+    if not left or not right:
+        return 0.0
+    return SequenceMatcher(None, left.lower(), right.lower()).ratio()
+
+
+def _dob_label_present(evidence: str) -> bool:
+    if not evidence:
+        return False
+    lowered = evidence.lower()
+    if "date" in lowered and "birth" in lowered:
+        return True
+    if "naissance" in lowered or "nacimiento" in lowered:
+        return True
+    return False
+
+
+def _evidence_grounded(evidence: str, passport_text: str, g28_text: str) -> bool:
+    if not evidence:
+        return False
+    snippet = evidence.strip()
+    if not snippet:
+        return False
+    return snippet in passport_text or snippet in g28_text
+
+
+def _fuzzy_evidence_grounded(field: str, value: str, passport_text: str, g28_text: str, evidence: str) -> bool:
+    if _evidence_grounded(evidence, passport_text, g28_text):
+        return True
+    spec = get_field_spec(field)
+    if spec and spec.field_type in {"date", "date_past", "date_future"}:
+        target = normalize_date(evidence, year_first=True) or normalize_date(evidence, year_first=False)
+        if not target:
+            target = normalize_date(value, year_first=True) or normalize_date(value, year_first=False)
+        if target:
+            for line in (passport_text or "").splitlines():
+                if normalize_date(line, year_first=True) == target or normalize_date(line, year_first=False) == target:
+                    return True
+            for line in (g28_text or "").splitlines():
+                if normalize_date(line, year_first=True) == target or normalize_date(line, year_first=False) == target:
+                    return True
+        return False
+    if field not in {
+        "passport.place_of_birth",
+        "passport.nationality",
+        "passport.country_of_issue",
+        "passport.sex",
+    }:
+        return False
+    if not value:
+        return False
+    if field == "passport.sex":
+        token = value.strip().upper()
+        if token in {"M", "F", "X"}:
+            if token in (evidence or ""):
+                return True
+            for line in (passport_text or "").splitlines():
+                if token in line and re.search(r"\\bsex\\b|sexo|sexe", line, re.IGNORECASE):
+                    return True
+            for line in (g28_text or "").splitlines():
+                if token in line and re.search(r"\\bsex\\b|sexo|sexe", line, re.IGNORECASE):
+                    return True
+        return False
+    best = 0.0
+    if field in {"passport.nationality", "passport.country_of_issue"}:
+        normalized_value = normalize_country(value) or value
+        for line in (passport_text or "").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            normalized_line = normalize_country(line) or line
+            if normalized_line == normalized_value:
+                return True
+            if re.fullmatch(r"[A-Z]{3}", line.strip()):
+                if normalize_country(line.strip()) == normalized_value:
+                    return True
+        for line in (g28_text or "").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            normalized_line = normalize_country(line) or line
+            if normalized_line == normalized_value:
+                return True
+            if re.fullmatch(r"[A-Z]{3}", line.strip()):
+                if normalize_country(line.strip()) == normalized_value:
+                    return True
+    for line in (passport_text or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        best = max(best, _similarity_score(value, line))
+        if best >= 0.72:
+            return True
+    for line in (g28_text or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        best = max(best, _similarity_score(value, line))
+        if best >= 0.72:
+            return True
+    return False
+
+
+def _augment_with_mrz_evidence(passport_text: str, result: ExtractionResult) -> str:
+    snippets = []
+    evidence = result.meta.evidence or {}
+    for value in evidence.values():
+        if not isinstance(value, str):
+            continue
+        text = value.strip()
+        if not text:
+            continue
+        normalized = text.replace("\n", "")
+        if "P<" in text or re.search(r"[A-Z0-9<]{30,}", normalized):
+            snippets.append(text)
+    if not snippets:
+        return passport_text
+    unique = []
+    seen = set()
+    for snippet in snippets:
+        if snippet in seen:
+            continue
+        seen.add(snippet)
+        unique.append(snippet)
+    if passport_text:
+        return f"{passport_text}\n\nMRZ evidence:\n" + "\n".join(unique)
+    return "MRZ evidence:\n" + "\n".join(unique)
+
+
+def _apply_llm_corrections(
+    result: ExtractionResult,
+    corrections: list[dict],
+    passport_text: str,
+    g28_text: str,
+) -> list[str]:
+    if not isinstance(corrections, list):
+        return []
+    payload = result.model_dump()
+    applied: list[str] = []
+    for item in corrections:
+        if not isinstance(item, dict):
+            continue
+        field = item.get("field")
+        if not field or not isinstance(field, str):
+            continue
+        if not field.startswith("passport."):
+            continue
+        spec = get_field_spec(field)
+        if not spec:
+            continue
+        current = _get_value(payload, field)
+        new_value = item.get("value")
+        if new_value is None:
+            continue
+        new_value = str(new_value).strip()
+        if not new_value:
+            continue
+        if current is not None and str(current).strip() == new_value:
+            continue
+        if looks_like_label_value(new_value, spec.label_hints):
+            continue
+        evidence = str(item.get("evidence") or "")
+        grounded = _fuzzy_evidence_grounded(field, new_value, passport_text, g28_text, evidence)
+        if not grounded and _similarity_score(str(current or ""), new_value) < 0.7:
+            continue
+        if current is None and not grounded:
+            continue
+        rule = validate_field(field, spec.field_type, new_value, spec.label_hints)
+        if not rule.is_valid:
+            continue
+        final_value = rule.normalized or new_value
+        if current is not None and str(current).strip() == final_value:
+            continue
+        set_field(
+            result,
+            field,
+            final_value,
+            "LLM",
+            None,
+            evidence or item.get("reason") or "LLM correction",
+        )
+        applied.append(field)
+    return applied
+
+
 def _write_result(run_dir: Path, result: ExtractionResult) -> None:
     out_path = run_dir / "extracted.json"
     with out_path.open("w") as f:
@@ -883,12 +1097,27 @@ async def extract(
     if options:
         _log_run(run_dir, "extract: request options ignored; using config")
     use_llm_extract = CONFIG.extraction.use_llm_extract
-    _log_run(run_dir, f"LLM extraction enabled (config): {use_llm_extract}")
+    use_llm_correct = CONFIG.extraction.use_llm_correct
+    _log_run(
+        run_dir,
+        f"LLM extraction enabled (config): {use_llm_extract} "
+        f"LLM correction enabled (config): {use_llm_correct}",
+    )
     result, passport_text, g28_text = extract_documents_with_text(
         passport_path, g28_path, use_llm_extract=use_llm_extract, run_dir=run_dir
     )
     _write_text_artifact(run_dir, "passport_ocr.txt", passport_text)
     _write_text_artifact(run_dir, "g28_ocr.txt", g28_text)
+    if use_llm_correct:
+        llm_passport_text = _augment_with_mrz_evidence(passport_text, result)
+        corrections, llm_error = llm_correct_fields(llm_passport_text, g28_text, result.model_dump())
+        if llm_error:
+            _add_warning(result, "llm_skipped", f"LLM correction skipped: {llm_error}")
+        else:
+            applied = _apply_llm_corrections(result, corrections, llm_passport_text, g28_text)
+            if applied:
+                _add_warning(result, "llm_corrected", f"LLM corrected fields: {', '.join(applied)}")
+                _log_run(run_dir, f"LLM corrections applied: {', '.join(applied)}")
     report = validate_and_annotate(result, use_llm=False)
     if CONFIG.extraction.use_llm_extract:
         contexts = _field_contexts_for_llm(result, passport_text, g28_text)
@@ -964,7 +1193,7 @@ async def review(payload: Dict):
         {},
         passport_text,
         g28_text,
-        use_llm=False,
+        use_llm=CONFIG.validation.use_llm,
     )
     doc_status = result.meta.documents if isinstance(result.meta.documents, dict) else {}
     summary = summarize_review(review_report.get("fields", {}), doc_status)
@@ -1764,11 +1993,12 @@ async def run_all(
     form_url = None
     use_llm = CONFIG.validation.use_llm
     use_llm_extract = CONFIG.extraction.use_llm_extract
+    use_llm_correct = CONFIG.extraction.use_llm_correct
 
     _log_run(
         run_dir,
         f"run_all options: headless={headless} slow_mo_ms={slow_mo_ms} keep_open_ms={keep_open_ms} "
-        f"use_llm_extract={use_llm_extract} use_llm_validate={use_llm}",
+        f"use_llm_extract={use_llm_extract} use_llm_correct={use_llm_correct} use_llm_validate={use_llm}",
     )
 
     result, passport_text, g28_text = extract_documents_with_text(
@@ -1776,6 +2006,16 @@ async def run_all(
     )
     _write_text_artifact(run_dir, "passport_ocr.txt", passport_text)
     _write_text_artifact(run_dir, "g28_ocr.txt", g28_text)
+    if use_llm_correct:
+        llm_passport_text = _augment_with_mrz_evidence(passport_text, result)
+        corrections, llm_error = llm_correct_fields(llm_passport_text, g28_text, result.model_dump())
+        if llm_error:
+            _add_warning(result, "llm_skipped", f"LLM correction skipped: {llm_error}")
+        else:
+            applied = _apply_llm_corrections(result, corrections, llm_passport_text, g28_text)
+            if applied:
+                _add_warning(result, "llm_corrected", f"LLM corrected fields: {', '.join(applied)}")
+                _log_run(run_dir, f"LLM corrections applied: {', '.join(applied)}")
     validate_and_annotate(result, use_llm=False)
     if CONFIG.extraction.use_llm_extract:
         contexts = _field_contexts_for_llm(result, passport_text, g28_text)

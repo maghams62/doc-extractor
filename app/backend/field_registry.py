@@ -106,7 +106,12 @@ FIELDS: List[FieldSpec] = [
         field_type="date_past",
         required=False,
         label="Date of issue",
-        label_hints=["Date of Issue"],
+        label_hints=[
+            "Date of Issue",
+            "Date of Issuance",
+            "Date de delivrance",
+            "Fecha de expedicion",
+        ],
         autofill=AutofillSpec(labels=["7.a. Date of Issue", "Date of Issue"], order=38),
     ),
     FieldSpec(
