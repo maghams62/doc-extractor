@@ -14,21 +14,10 @@ Create a `.env` file in the repo root (same level as this README) and add only t
 ### Environment
 ```bash
 # .env (repo root)
-# Enable optional LLM features (translation/LLM validation/LLM extraction).
+OPENAI_API_KEY=your_openai_api_key
 ENABLE_LLM=1
-OPENAI_API_KEY=your_key_here
-
-# Optional: use a non-OpenAI endpoint or override defaults.
-# LLM_API_KEY=your_key_here
-# LLM_ENDPOINT=https://api.openai.com/v1/chat/completions
-# LLM_MODEL=gpt-4o-mini
-# LLM_TIMEOUT=30
-
-# Optional: autofill target + behavior.
-# ALMA_FORM_URL=https://mendrika-alma.github.io/form-submission/
-# ALMA_AUTOFILL_HEADLESS=false
-# ALMA_AUTOFILL_SLOW_MO_MS=0
-# ALMA_AUTOFILL_KEEP_OPEN_MS=-1
+LLM_ENDPOINT=https://api.openai.com/v1/chat/completions
+LLM_API_KEY=your_openai_api_key
 ```
 
 Optional frontend override:

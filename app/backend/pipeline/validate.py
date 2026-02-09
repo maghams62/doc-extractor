@@ -19,7 +19,7 @@ from ..schemas import ExtractionResult, ValidationIssue, ValidationReport
 LOGGER = logging.getLogger(__name__)
 
 
-MRZ_LINE_RE = re.compile(r"^[A-Z0-9<]{30,44}$")
+MRZ_LINE_RE = re.compile(r"^(?=.*<)[A-Z0-9<]{30,46}$")
 DEFAULT_OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions"
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
 

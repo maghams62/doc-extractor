@@ -16,6 +16,7 @@ LOCAL_FORM_PATH = FIXTURES_DIR / "form.html"
 SYNTHETIC_PASSPORT_PATH = FIXTURES_DIR / "synthetic_passport_mrz.png"
 SYNTHETIC_PASSPORT_JPG_PATH = FIXTURES_DIR / "synthetic_passport_mrz.jpg"
 SYNTHETIC_PASSPORT_REALISTIC_PATH = FIXTURES_DIR / "synthetic_passport_mrz_realistic.png"
+GOLD_PASSPORT_PATH = FIXTURES_DIR / "gold_passport.png"
 SYNTHETIC_G28_PATH = FIXTURES_DIR / "synthetic_g28_text.png"
 SYNTHETIC_G28_BLUR_PATH = FIXTURES_DIR / "synthetic_g28_text_blurred.png"
 
@@ -62,6 +63,13 @@ def realistic_passport_path() -> Path:
     if not SYNTHETIC_PASSPORT_REALISTIC_PATH.exists():
         pytest.fail(f"Realistic passport fixture missing at {SYNTHETIC_PASSPORT_REALISTIC_PATH}")
     return SYNTHETIC_PASSPORT_REALISTIC_PATH
+
+
+@pytest.fixture(scope="session")
+def gold_passport_path() -> Path:
+    if not GOLD_PASSPORT_PATH.exists():
+        pytest.fail(f"Gold passport fixture missing at {GOLD_PASSPORT_PATH}")
+    return GOLD_PASSPORT_PATH
 
 
 @pytest.fixture(scope="session")

@@ -88,6 +88,25 @@ def normalize_date(value: Optional[str], year_first: bool = True) -> Optional[st
             return None
     try:
         parsed = parser.parse(raw, dayfirst=not year_first, yearfirst=year_first)
-        return parsed.date().isoformat()
+        parsed_date = parsed.date()
+        year_match = re.search(r"\b(\d{3})\b", raw)
+        if year_match and parsed_date.year < 1900:
+            year_raw = int(year_match.group(1))
+            candidates = []
+            if year_raw < 100:
+                candidates.extend([2000 + year_raw, 1900 + year_raw])
+            else:
+                candidates.extend([year_raw * 10 + digit for digit in range(10)])
+            viable = []
+            for year in candidates:
+                if 1900 <= year <= CURRENT_YEAR + 20:
+                    try:
+                        viable.append(dt.date(year, parsed_date.month, parsed_date.day))
+                    except ValueError:
+                        continue
+            if viable:
+                best = min(viable, key=lambda d: abs(d.year - CURRENT_YEAR))
+                return best.isoformat()
+        return parsed_date.isoformat()
     except (ValueError, OverflowError):
         return None

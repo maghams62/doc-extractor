@@ -355,6 +355,22 @@ Suggestion example:
 """.strip()
 
 
+LLM_CORRECT_PROMPT = """
+You are a strict passport data corrector.
+Return JSON only with key: corrections (list).
+Rules:
+- You may correct existing fields OR fill missing fields only when evidence is present in OCR/MRZ text.
+- Make minimal edits: fix OCR typos, missing/extra characters, spacing, punctuation, casing.
+- Normalize dates to YYYY-MM-DD.
+- When multiple dates exist, map them using labels: "Date of birth", "Date of issue", "Date of expiration".
+- Normalize country names to common English when obvious (e.g., UNITED STATES OF AMERICA -> United States).
+- For place names and nationalities, correct obvious OCR misspellings to the intended value.
+- If unsure, omit the correction.
+- evidence should be a short OCR/MRZ snippet that supports the correction (may include misspellings).
+Each correction: {field, value, reason, evidence, confidence}
+""".strip()
+
+
 LLM_TRANSLATE_PROMPT = """
 Translate the following OCR text into English.
 Rules:
@@ -416,6 +432,19 @@ def build_llm_verify_prompt(
         f"Field statuses:\n{json.dumps(statuses, indent=2)}\n\n"
         f"Extraction result:\n{json.dumps(result, indent=2)}\n\n"
         f"Autofill report:\n{json.dumps(autofill_report or {}, indent=2)}\n\n"
+        f"Passport OCR/MRZ text:\n{passport_text}\n\n"
+        f"G-28 OCR text:\n{g28_text}\n"
+    )
+
+
+def build_llm_correct_prompt(
+    passport_text: str,
+    g28_text: str,
+    result: Dict,
+) -> str:
+    return (
+        f"{LLM_CORRECT_PROMPT}\n\n"
+        f"Extraction result:\n{json.dumps(result, indent=2)}\n\n"
         f"Passport OCR/MRZ text:\n{passport_text}\n\n"
         f"G-28 OCR text:\n{g28_text}\n"
     )

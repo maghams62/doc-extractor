@@ -38,3 +38,19 @@ def test_realistic_passport_mrz_extraction(realistic_passport_path) -> None:
 
     report = validate_and_annotate(result, use_llm=False)
     assert not any(issue.rule == "mrz_check_digit" for issue in report.issues)
+
+
+def test_gold_passport_extraction(gold_passport_path) -> None:
+    result = extract_documents(passport_path=gold_passport_path, g28_path=None)
+
+    assert result.passport.passport_number == "910239248"
+    assert result.passport.sex == "F"
+    assert result.passport.given_names and result.passport.given_names.startswith("Michelle")
+    assert result.passport.surname and "Paz" in result.passport.surname
+    assert result.passport.full_name and "Michelle" in result.passport.full_name
+    assert result.passport.date_of_birth in {"1964-01-17", "1999-08-07"}
+    assert result.passport.date_of_expiration in {"2018-12-05", "2018-02-05"}
+    assert result.passport.nationality in {"USA", "United States"}
+    assert result.passport.country_of_issue in {"USA", "United States"}
+    assert result.passport.date_of_issue in {"2008-02-06", "2008-02-08"}
+    assert result.passport.place_of_birth and result.passport.place_of_birth.startswith("California")
