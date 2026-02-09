@@ -2,7 +2,7 @@
 Upload a passport + G-28, extract structured fields with evidence, autofill the target form, and validate.
 
 ## Quickstart
-Create a `.env` file in the repo root (same level as this README).
+Create a `.env` file in the repo root (same level as this README) and add only the settings you need.
 
 ### Prereqs
 - Python 3.11 (repo venv is 3.11) + pip
@@ -38,6 +38,7 @@ VITE_API_BASE=http://localhost:8000
 ```
 
 ### Run backend
+From the repo root, start the API server:
 ```bash
 cd app/backend
 python -m venv .venv
@@ -48,6 +49,7 @@ PYTHONPATH=.. uvicorn backend.main:app --reload
 ```
 
 ### Run frontend
+In a second terminal from the repo root, start the UI:
 ```bash
 cd app/frontend
 npm install

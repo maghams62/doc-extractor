@@ -44,7 +44,8 @@ class AutofillConfig:
 
 @dataclass(frozen=True)
 class ExtractionConfig:
-    use_llm_extract: bool = False
+    use_llm_extract: bool = os.getenv("ENABLE_LLM", "").lower() in {"1", "true", "yes"}
+    use_llm_correct: bool = os.getenv("ENABLE_LLM_CORRECT", "").lower() in {"1", "true", "yes"}
 
 
 @dataclass(frozen=True)
